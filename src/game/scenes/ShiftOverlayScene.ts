@@ -71,7 +71,7 @@ export class ShiftOverlayScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(2050).setVisible(false);
 
     this.refreshEventBanner();
-    if (!this.scene.isActive('regular-overlay')) this.scene.launch('regular-overlay', { dayId: this.dayId });
+    this.launchPresentationOverlays();
   }
 
   update(): void {
@@ -79,13 +79,12 @@ export class ShiftOverlayScene extends Phaser.Scene {
     const session = this.getRestaurantSession();
     if (!session) return;
 
-    // Keep the overlay coherent if a developer jumps between days in RestaurantScene.
+    // Keep the overlays coherent if a developer jumps between days in RestaurantScene.
     if (session.config.id !== this.dayId) {
       this.restoreSurprise(session);
       this.configureForDay(session.config.id);
       this.refreshEventBanner();
-      if (this.scene.isActive('regular-overlay')) this.scene.stop('regular-overlay');
-      this.scene.launch('regular-overlay', { dayId: this.dayId });
+      this.restartPresentationOverlays();
     }
 
     this.updateSurprise(session);
@@ -94,24 +93,59 @@ export class ShiftOverlayScene extends Phaser.Scene {
     const seconds = Math.ceil(remainingMs / 1000);
     this.timerText?.setText(`SHIFT  ${seconds}s`);
 
-    if (remainingMs <= 0) {
-      const snapshot = session.snapshot();
-      const regular = this.getRegularBonus();
-      this.finished = true;
-      this.restoreSurprise(session);
+    if (remainingMs <= 0) this.finishShift(session);
+  }
+
+  private finishShift(session: GameSession): void {
+    if (this.finished) return;
+    const snapshot = session.snapshot();
+    const regular = this.getRegularBonus();
+    const finalScore = snapshot.score + regular.score;
+    const finalCoins = snapshot.coins + regular.coins;
+
+    this.finished = true;
+    this.restoreSurprise(session);
+    session.pause();
+    this.timerText?.setText('SHIFT  DONE');
+    this.surpriseText?.setVisible(false);
+
+    const restaurant = this.scene.get('restaurant') as Phaser.Scene & RestaurantSceneRuntime;
+    restaurant.cameras.main.fadeOut(420, 45, 36, 31);
+
+    const finish = this.add.text(360, 655, `✨  SHIFT COMPLETE  ✨\n${finalScore} pts`, {
+      fontFamily: 'system-ui',
+      fontSize: '32px',
+      fontStyle: 'bold',
+      color: '#fff8ed',
+      backgroundColor: '#6d4a3c',
+      padding: { x: 28, y: 18 },
+      align: 'center',
+      lineSpacing: 8,
+    }).setOrigin(0.5).setDepth(5000).setScale(0.78).setAlpha(0);
+
+    this.tweens.add({
+      targets: finish,
+      scale: 1,
+      alpha: 1,
+      duration: 220,
+      ease: 'Back.Out',
+    });
+
+    this.time.delayedCall(650, () => {
       if (this.scene.isActive('regular-overlay')) this.scene.stop('regular-overlay');
+      if (this.scene.isActive('juice-overlay')) this.scene.stop('juice-overlay');
       this.scene.stop('restaurant');
       this.scene.start('result', {
         dayId: this.dayId,
-        score: snapshot.score + regular.score,
-        shiftCoins: snapshot.coins + regular.coins,
+        score: finalScore,
+        shiftCoins: finalCoins,
         regularCompleted: regular.completed,
         regularName: regular.name,
         regularIcon: regular.icon,
         regularBonusScore: regular.score,
         regularBonusCoins: regular.coins,
       });
-    }
+    });
   }
 
   private configureForDay(dayId: string): void {
@@ -184,6 +218,18 @@ export class ShiftOverlayScene extends Phaser.Scene {
     session.config.kitchenCapacity = this.restorePoint.kitchenCapacity;
     session.config.serviceWindowSeconds = this.restorePoint.serviceWindowSeconds;
     this.restorePoint = undefined;
+  }
+
+  private launchPresentationOverlays(): void {
+    if (!this.scene.isActive('regular-overlay')) this.scene.launch('regular-overlay', { dayId: this.dayId });
+    if (!this.scene.isActive('juice-overlay')) this.scene.launch('juice-overlay', { dayId: this.dayId });
+  }
+
+  private restartPresentationOverlays(): void {
+    if (this.scene.isActive('regular-overlay')) this.scene.stop('regular-overlay');
+    if (this.scene.isActive('juice-overlay')) this.scene.stop('juice-overlay');
+    this.scene.launch('regular-overlay', { dayId: this.dayId });
+    this.scene.launch('juice-overlay', { dayId: this.dayId });
   }
 
   private getRegularBonus(): RegularVisitBonus {
