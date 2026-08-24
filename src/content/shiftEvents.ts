@@ -1,7 +1,7 @@
 export type ShiftEventEffect =
-  | { kind: 'arrival-rush'; spawnIntervalMultiplier: number; extraWaitingGroups: number }
-  | { kind: 'kitchen-boost'; kitchenSpeedMultiplier: number }
-  | { kind: 'happy-hour'; paymentMultiplier: number };
+  | { kind: 'arrival-rush'; extraWaitingGroups: number; serviceWindowDeltaSeconds: number }
+  | { kind: 'kitchen-boost'; extraKitchenCapacity: number }
+  | { kind: 'service-breeze'; serviceWindowBonusSeconds: number };
 
 export interface ShiftEventDefinition {
   id: string;
@@ -21,34 +21,34 @@ export const shiftEvents: readonly ShiftEventDefinition[] = [
     id: 'rain-rush',
     icon: '🌧️',
     label: 'RAIN RUSH',
-    detail: 'Walk-ins arrive faster for a moment.',
+    detail: 'More guests can queue and new service windows are a little tighter.',
     firstDay: 4,
     lastDay: 6,
     startAfterMs: 18_000,
-    durationMs: 14_000,
-    effect: { kind: 'arrival-rush', spawnIntervalMultiplier: 0.52, extraWaitingGroups: 1 },
+    durationMs: 16_000,
+    effect: { kind: 'arrival-rush', extraWaitingGroups: 1, serviceWindowDeltaSeconds: -2 },
   },
   {
     id: 'chef-in-zone',
     icon: '⚡',
     label: 'CHEF IN THE ZONE',
-    detail: 'The kitchen cooks faster for a short burst.',
+    detail: 'The kitchen can handle one extra order at once.',
     firstDay: 4,
     lastDay: 6,
     startAfterMs: 24_000,
-    durationMs: 14_000,
-    effect: { kind: 'kitchen-boost', kitchenSpeedMultiplier: 1.65 },
+    durationMs: 16_000,
+    effect: { kind: 'kitchen-boost', extraKitchenCapacity: 1 },
   },
   {
-    id: 'happy-hour',
-    icon: '🪙',
-    label: 'HAPPY HOUR',
-    detail: 'Payments collected now earn a bigger tip.',
+    id: 'friendly-crowd',
+    icon: '💛',
+    label: 'FRIENDLY CROWD',
+    detail: 'Guests give you a little more time on new service windows.',
     firstDay: 5,
     lastDay: 6,
     startAfterMs: 30_000,
-    durationMs: 15_000,
-    effect: { kind: 'happy-hour', paymentMultiplier: 1.35 },
+    durationMs: 16_000,
+    effect: { kind: 'service-breeze', serviceWindowBonusSeconds: 4 },
   },
 ];
 
