@@ -154,7 +154,7 @@ export class HomeScene extends Phaser.Scene {
       fontStyle: 'bold',
       color: '#7c5d4b',
     }).setOrigin(0.5);
-    this.add.text(360, 1181, 'Special Guest  🔒  Coming in the retention milestone', {
+    this.add.text(360, 1181, 'Special Guest  🔒  Coming soon', {
       fontFamily: 'system-ui',
       fontSize: '16px',
       color: '#856f61',
