@@ -8,7 +8,7 @@ export interface RegularCustomerDefinition {
   groupSize: number;
   favoriteRecipeId: string;
   scoreBonus: number;
-  tipMultiplier: number;
+  coinBonus: number;
   line: string;
 }
 
@@ -25,7 +25,7 @@ export const regularCustomers: readonly RegularCustomerDefinition[] = [
     groupSize: 1,
     favoriteRecipeId: 'tea',
     scoreBonus: 60,
-    tipMultiplier: 1.2,
+    coinBonus: 12,
     line: 'The tea regular. She always notices when service is smooth.',
   },
   {
@@ -36,7 +36,7 @@ export const regularCustomers: readonly RegularCustomerDefinition[] = [
     groupSize: 2,
     favoriteRecipeId: 'gyoza',
     scoreBonus: 80,
-    tipMultiplier: 1.25,
+    coinBonus: 18,
     line: 'Drops in after work and usually brings a friend.',
   },
 ];
