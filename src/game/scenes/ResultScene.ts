@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { campaignDays } from '../../content/campaignDays';
 import { dayConfigs } from '../../content/dayConfigs';
-import { upgrades, type UpgradeDefinition } from '../../content/upgrades';
+import type { UpgradeDefinition } from '../../content/upgrades';
 import { SaveManager } from '../../core/save/SaveManager';
 import type { SaveData } from '../../core/save/SaveSchema';
 import {
@@ -9,6 +9,7 @@ import {
   dayIdFromNumber,
   numberFromDayId,
   purchaseUpgrade,
+  shopUpgrades,
 } from '../../systems/progression/ProgressionSystem';
 
 interface ResultSceneData {
@@ -103,19 +104,20 @@ export class ResultScene extends Phaser.Scene {
       color: '#4b382f',
     }).setOrigin(0.5);
 
-    this.add.text(42, 565, 'MAKE THE RESTAURANT YOURS', {
+    this.add.text(42, 565, 'UPGRADE THE RESTAURANT', {
       fontFamily: 'system-ui',
       fontSize: '21px',
       fontStyle: 'bold',
       color: '#4b382f',
     });
-    this.add.text(42, 598, 'Buy one now, or save your coins for later.', {
+    this.add.text(42, 598, 'Choose style or a small service boost. You still run every table yourself.', {
       fontFamily: 'system-ui',
-      fontSize: '16px',
+      fontSize: '15px',
       color: '#80695b',
     });
 
-    upgrades.forEach((upgrade, index) => this.createUpgradeCard(upgrade, 680 + index * 128));
+    const offers = shopUpgrades(this.save, 3);
+    offers.forEach((upgrade, index) => this.createUpgradeCard(upgrade, 680 + index * 128));
 
     this.shopStatus = this.add.text(360, 1052, result.achievementUnlocked ? 'Achievement unlocked: 🏅 Critic Approved' : '', {
       fontFamily: 'system-ui',
@@ -158,17 +160,27 @@ export class ResultScene extends Phaser.Scene {
       fontFamily: 'system-ui',
       fontSize: '40px',
     }).setOrigin(0.5);
-    const title = this.add.text(135, y - 29, upgrade.title, {
+    const kindLabel = this.add.text(135, y - 37, upgrade.kind === 'service' ? 'SERVICE' : 'STYLE', {
       fontFamily: 'system-ui',
-      fontSize: '20px',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: upgrade.kind === 'service' ? '#4f7048' : '#8b674f',
+    });
+    const title = this.add.text(135, y - 18, upgrade.title, {
+      fontFamily: 'system-ui',
+      fontSize: '19px',
       fontStyle: 'bold',
       color: '#49362d',
     });
-    const description = this.add.text(135, y + 2, upgrade.description, {
+    const detail = upgrade.benefitLabel
+      ? `${upgrade.description}\n${upgrade.benefitLabel}`
+      : upgrade.description;
+    const description = this.add.text(135, y + 9, detail, {
       fontFamily: 'system-ui',
-      fontSize: '15px',
+      fontSize: '13px',
       color: '#7b6456',
       wordWrap: { width: 330 },
+      lineSpacing: 3,
     });
     const action = this.add.text(630, y, '', {
       fontFamily: 'system-ui',
@@ -185,11 +197,12 @@ export class ResultScene extends Phaser.Scene {
         action.setText('OWNED ✓').setColor('#42623c').setBackgroundColor('#d7e6cc');
         card.disableInteractive();
       } else {
-        card.setFillStyle(0xfff8ed);
+        card.setFillStyle(upgrade.kind === 'service' ? 0xf3f8ee : 0xfff8ed);
         action.setText(`💰 ${upgrade.cost}`).setColor('#fff8ed').setBackgroundColor('#9b6348');
         card.setInteractive({ useHandCursor: true });
       }
       icon.setAlpha(owned ? 1 : 0.9);
+      kindLabel.setAlpha(1);
       title.setAlpha(1);
       description.setAlpha(1);
     };
@@ -199,14 +212,19 @@ export class ResultScene extends Phaser.Scene {
       const purchase = purchaseUpgrade(this.save, upgrade.id);
       if (!purchase.success) {
         this.shopStatus?.setColor('#9d4e3f').setText(
-          purchase.reason === 'insufficient-coins' ? 'Not enough coins yet — one more shift!' : '',
+          purchase.reason === 'insufficient-coins'
+            ? 'Not enough coins yet — one more shift!'
+            : purchase.reason === 'locked'
+              ? 'Keep playing to unlock this upgrade.'
+              : '',
         );
         return;
       }
       this.save = purchase.save;
       this.saveManager.save(this.save);
       this.coinText?.setText(`YOUR COINS  💰 ${this.save.coins}`);
-      this.shopStatus?.setColor('#4f7048').setText(`${upgrade.icon} ${upgrade.title} added to your restaurant!`);
+      const benefit = upgrade.benefitLabel ? ` · ${upgrade.benefitLabel}` : '';
+      this.shopStatus?.setColor('#4f7048').setText(`${upgrade.icon} ${upgrade.title} added${benefit}`);
       refresh();
     });
 
