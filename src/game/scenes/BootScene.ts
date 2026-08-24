@@ -6,6 +6,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.scene.start('restaurant', { dayId: 'day-01' });
+    this.scene.start('home');
   }
 }
