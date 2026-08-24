@@ -11,6 +11,7 @@ import {
   purchaseUpgrade,
   shopUpgrades,
 } from '../../systems/progression/ProgressionSystem';
+import { art, button, font, headerBand, panel, pill, sectionTitle, starRow } from '../ui/ArtTheme';
 
 interface ResultSceneData {
   dayId?: string;
@@ -50,183 +51,197 @@ export class ResultScene extends Phaser.Scene {
     const nextDayId = dayIdFromNumber(dayNumber + 1);
     const nextConfig = dayConfigs[nextDayId];
 
-    this.cameras.main.setBackgroundColor('#f3e6d7');
-    this.add.rectangle(360, 88, 720, 176, 0x3e302a);
-    this.add.text(360, 40, 'SHIFT COMPLETE', {
-      fontFamily: 'system-ui',
-      fontSize: '34px',
+    this.cameras.main.setBackgroundColor('#f6efe6');
+    headerBand(this, `DAY ${dayNumber} · SERVICE CLOSED`);
+    this.add.text(34, 28, 'SHIFT COMPLETE', {
+      fontFamily: font,
+      fontSize: '31px',
       fontStyle: 'bold',
-      color: '#fff5e8',
+      color: '#fff8ef',
+    });
+    this.add.text(34, 72, config.title, {
+      fontFamily: font,
+      fontSize: '16px',
+      color: '#d7b99a',
+    });
+
+    panel(this, 360, 330, 640, 286, { fill: art.paper, stroke: art.creamDeep, radius: 32 });
+    this.add.text(360, 220, starRow(result.stars), {
+      fontFamily: font,
+      fontSize: '55px',
+      color: '#d8a048',
     }).setOrigin(0.5);
-    this.add.text(360, 96, config.title, {
-      fontFamily: 'system-ui',
-      fontSize: '20px',
-      color: '#ebcfae',
+    this.add.text(360, 293, `${result.score}`, {
+      fontFamily: font,
+      fontSize: '42px',
+      fontStyle: 'bold',
+      color: '#3f3029',
+    }).setOrigin(0.5);
+    this.add.text(360, 335, 'SERVICE SCORE', {
+      fontFamily: font,
+      fontSize: '12px',
+      fontStyle: 'bold',
+      letterSpacing: 2,
+      color: '#8c7567',
     }).setOrigin(0.5);
 
-    this.add.rectangle(360, 325, 620, 250, 0xfff8ed).setStrokeStyle(4, 0xc69a72);
-    this.add.text(360, 235, `${'★'.repeat(result.stars)}${'☆'.repeat(3 - result.stars)}`, {
-      fontFamily: 'system-ui',
-      fontSize: '54px',
-      color: '#c7832f',
-    }).setOrigin(0.5);
-    this.add.text(360, 310, `SCORE  ${result.score}`, {
-      fontFamily: 'system-ui',
-      fontSize: '28px',
-      fontStyle: 'bold',
-      color: '#49362d',
-    }).setOrigin(0.5);
-    this.add.text(360, 360, `Shift cash ${result.shiftCoins}   ·   Total payout +${result.rewardCoins}`, {
-      fontFamily: 'system-ui',
-      fontSize: '19px',
-      color: '#765b4c',
-    }).setOrigin(0.5);
+    pill(this, 237, 393, `SHIFT  💰 ${result.shiftCoins}`, {
+      fill: art.woodDark,
+      fontSize: '14px',
+    });
+    pill(this, 483, 393, `PAYOUT  +${result.rewardCoins}`, {
+      fill: art.terracotta,
+      fontSize: '14px',
+    });
+
     if (result.stars > result.previousBestStars) {
-      this.add.text(360, 410, 'NEW BEST ⭐', {
-        fontFamily: 'system-ui',
-        fontSize: '18px',
-        fontStyle: 'bold',
-        color: '#9c6431',
-      }).setOrigin(0.5);
+      pill(this, 360, 444, '✨ NEW BEST', { fill: art.sage, fontSize: '13px' });
     }
 
-    if (campaign?.eventLabel && config.id === 'day-07') {
-      const approved = result.stars >= (campaign.achievementStars ?? 2);
-      this.add.text(360, 452, approved ? '🏅 CRITIC APPROVED · “A restaurant worth returning to.”' : '🕵️ CRITIC VERDICT · “Promising. Keep improving.”', {
-        fontFamily: 'system-ui',
-        fontSize: '15px',
-        fontStyle: 'bold',
-        color: approved ? '#48633f' : '#785d50',
-        backgroundColor: approved ? '#ddebd7' : '#eadfd4',
-        padding: { x: 14, y: 9 },
-      }).setOrigin(0.5);
-    } else if (data.regularCompleted && data.regularName) {
-      this.add.text(
-        360,
-        452,
-        `${data.regularIcon ?? '★'} ${data.regularName} returned · +${data.regularBonusScore ?? 0} score · +${data.regularBonusCoins ?? 0} coins`,
-        {
-          fontFamily: 'system-ui',
-          fontSize: '15px',
-          fontStyle: 'bold',
-          color: '#506548',
-          backgroundColor: '#dde8d6',
-          padding: { x: 14, y: 9 },
-        },
-      ).setOrigin(0.5);
-    }
+    this.drawSpecialResult(data, config.id, campaign?.achievementStars, result.stars);
 
-    this.coinText = this.add.text(360, 510, `YOUR COINS  💰 ${this.save.coins}`, {
-      fontFamily: 'system-ui',
-      fontSize: '24px',
+    this.coinText = this.add.text(676, 167, `💰 ${this.save.coins}`, {
+      fontFamily: font,
+      fontSize: '20px',
       fontStyle: 'bold',
-      color: '#4b382f',
-    }).setOrigin(0.5);
+      color: '#5a4438',
+    }).setOrigin(1, 0);
 
-    this.add.text(42, 565, 'UPGRADE THE RESTAURANT', {
-      fontFamily: 'system-ui',
-      fontSize: '21px',
-      fontStyle: 'bold',
-      color: '#4b382f',
-    });
-    this.add.text(42, 598, 'Choose style or a small service boost. You still run every table yourself.', {
-      fontFamily: 'system-ui',
-      fontSize: '15px',
-      color: '#80695b',
-    });
+    sectionTitle(this, 40, 550, 'UPGRADE THE RESTAURANT');
+    this.add.text(680, 553, 'choose style or service', {
+      fontFamily: font,
+      fontSize: '13px',
+      color: '#8b7769',
+    }).setOrigin(1, 0);
 
     const offers = shopUpgrades(this.save, 3);
-    offers.forEach((upgrade, index) => this.createUpgradeCard(upgrade, 680 + index * 128));
+    if (offers.length) {
+      offers.forEach((upgrade, index) => this.createUpgradeCard(upgrade, 648 + index * 132));
+    } else {
+      panel(this, 360, 760, 620, 170, { fill: 0xeee4d8, stroke: 0xd6c4b3, radius: 28 });
+      this.add.text(360, 735, '✨ Everything available is already yours.', {
+        fontFamily: font,
+        fontSize: '20px',
+        fontStyle: 'bold',
+        color: '#514038',
+      }).setOrigin(0.5);
+      this.add.text(360, 780, 'Keep earning stars — the terrace will bring a new shop tier.', {
+        fontFamily: font,
+        fontSize: '14px',
+        color: '#806d61',
+      }).setOrigin(0.5);
+    }
 
-    this.shopStatus = this.add.text(360, 1052, result.achievementUnlocked ? 'Achievement unlocked: 🏅 Critic Approved' : '', {
-      fontFamily: 'system-ui',
-      fontSize: '17px',
-      color: result.achievementUnlocked ? '#4f7048' : '#9d4e3f',
+    this.shopStatus = this.add.text(360, 1045, result.achievementUnlocked ? '🏅 Critic Approved unlocked' : '', {
+      fontFamily: font,
+      fontSize: '15px',
+      fontStyle: 'bold',
+      color: result.achievementUnlocked ? '#506548' : '#9d4e3f',
     }).setOrigin(0.5);
 
-    const home = this.add.text(nextConfig ? 220 : 360, 1145, '🏠  HOME', {
-      fontFamily: 'system-ui',
-      fontSize: '22px',
-      fontStyle: 'bold',
-      color: '#fff8ec',
-      backgroundColor: '#6b5145',
-      padding: { x: 28, y: 16 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-    home.on('pointerup', () => this.scene.start('home'));
+    button(this, nextConfig ? 220 : 360, 1142, '🏠  HOME', () => this.scene.start('home'), {
+      fill: art.cocoa,
+      fontSize: '19px',
+      paddingX: 25,
+      paddingY: 14,
+    });
 
     if (nextConfig) {
-      this.add.text(500, 1145, 'NEXT DAY  →', {
-        fontFamily: 'system-ui',
-        fontSize: '22px',
-        fontStyle: 'bold',
-        color: '#fff8ec',
-        backgroundColor: '#a16446',
-        padding: { x: 28, y: 16 },
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true })
-        .on('pointerup', () => this.scene.start('day-intro', { dayId: nextDayId }));
+      button(this, 500, 1142, 'NEXT DAY  →', () => this.scene.start('day-intro', { dayId: nextDayId }), {
+        fill: art.terracotta,
+        fontSize: '19px',
+        paddingX: 25,
+        paddingY: 14,
+      });
     } else {
-      this.add.text(360, 1220, 'FIRST WEEK COMPLETE · Outdoor Terrace discovered 🔒', {
-        fontFamily: 'system-ui',
-        fontSize: '17px',
-        color: '#64775c',
-      }).setOrigin(0.5);
+      pill(this, 360, 1212, '🌿 FIRST WEEK COMPLETE · OUTDOOR TERRACE DISCOVERED', {
+        fill: art.sage,
+        fontSize: '12px',
+      });
+    }
+
+    this.cameras.main.fadeIn(260, 246, 239, 230);
+  }
+
+  private drawSpecialResult(
+    data: ResultSceneData,
+    dayId: string,
+    achievementStars: number | undefined,
+    stars: number,
+  ): void {
+    if (dayId === 'day-07') {
+      const approved = stars >= (achievementStars ?? 2);
+      pill(this, 360, 493, approved
+        ? '🏅 CRITIC APPROVED · worth returning to'
+        : '🕵️ CRITIC VERDICT · promising, keep improving', {
+        fill: approved ? art.sage : art.woodDark,
+        fontSize: '13px',
+        paddingX: 16,
+        paddingY: 8,
+      });
+      return;
+    }
+
+    if (data.regularCompleted && data.regularName) {
+      pill(this, 360, 493,
+        `${data.regularIcon ?? '★'} ${data.regularName} returned  ·  +${data.regularBonusScore ?? 0} score  ·  +${data.regularBonusCoins ?? 0} coins`, {
+          fill: art.sage,
+          fontSize: '12px',
+          paddingX: 15,
+          paddingY: 8,
+        });
     }
   }
 
   private createUpgradeCard(upgrade: UpgradeDefinition, y: number): void {
-    const card = this.add.rectangle(360, y, 620, 104, 0xfff8ed).setStrokeStyle(3, 0xc9a17e);
-    const icon = this.add.text(86, y, upgrade.icon, {
-      fontFamily: 'system-ui',
-      fontSize: '40px',
-    }).setOrigin(0.5);
-    const kindLabel = this.add.text(135, y - 37, upgrade.kind === 'service' ? 'SERVICE' : 'STYLE', {
-      fontFamily: 'system-ui',
-      fontSize: '11px',
-      fontStyle: 'bold',
-      color: upgrade.kind === 'service' ? '#4f7048' : '#8b674f',
+    const owned = this.save?.unlockedUpgrades.includes(upgrade.id) ?? false;
+    panel(this, 360, y, 620, 112, {
+      fill: owned ? art.sageLight : upgrade.kind === 'service' ? 0xf0f5eb : art.paper,
+      stroke: owned ? 0xa9bea0 : 0xd3b99f,
+      radius: 25,
     });
-    const title = this.add.text(135, y - 18, upgrade.title, {
-      fontFamily: 'system-ui',
-      fontSize: '19px',
+
+    this.add.text(88, y, upgrade.icon, {
+      fontFamily: font,
+      fontSize: '39px',
+    }).setOrigin(0.5);
+
+    pill(this, 165, y - 35, upgrade.kind === 'service' ? 'SERVICE' : 'STYLE', {
+      fill: upgrade.kind === 'service' ? art.sage : art.wood,
+      fontSize: '9px',
+      paddingX: 8,
+      paddingY: 4,
+    });
+
+    this.add.text(132, y - 14, upgrade.title, {
+      fontFamily: font,
+      fontSize: '18px',
       fontStyle: 'bold',
-      color: '#49362d',
+      color: '#44342d',
     });
     const detail = upgrade.benefitLabel
       ? `${upgrade.description}\n${upgrade.benefitLabel}`
       : upgrade.description;
-    const description = this.add.text(135, y + 9, detail, {
-      fontFamily: 'system-ui',
-      fontSize: '13px',
-      color: '#7b6456',
-      wordWrap: { width: 330 },
+    this.add.text(132, y + 15, detail, {
+      fontFamily: font,
+      fontSize: '12px',
+      color: '#776459',
+      wordWrap: { width: 335 },
       lineSpacing: 3,
     });
-    const action = this.add.text(630, y, '', {
-      fontFamily: 'system-ui',
-      fontSize: '17px',
-      fontStyle: 'bold',
-      align: 'center',
-      padding: { x: 14, y: 10 },
-    }).setOrigin(1, 0.5);
 
-    const refresh = (): void => {
-      const owned = this.save?.unlockedUpgrades.includes(upgrade.id) ?? false;
-      if (owned) {
-        card.setFillStyle(0xe6efdd);
-        action.setText('OWNED ✓').setColor('#42623c').setBackgroundColor('#d7e6cc');
-        card.disableInteractive();
-      } else {
-        card.setFillStyle(upgrade.kind === 'service' ? 0xf3f8ee : 0xfff8ed);
-        action.setText(`💰 ${upgrade.cost}`).setColor('#fff8ed').setBackgroundColor('#9b6348');
-        card.setInteractive({ useHandCursor: true });
-      }
-      icon.setAlpha(owned ? 1 : 0.9);
-      kindLabel.setAlpha(1);
-      title.setAlpha(1);
-      description.setAlpha(1);
-    };
+    const action = pill(this, 582, y, owned ? 'OWNED ✓' : `💰 ${upgrade.cost}`, {
+      fill: owned ? art.sage : art.terracotta,
+      fontSize: '13px',
+      paddingX: 13,
+      paddingY: 8,
+    });
 
-    card.on('pointerup', () => {
+    if (owned) return;
+
+    const hit = this.add.rectangle(360, y, 620, 112, 0xffffff, 0.001)
+      .setInteractive({ useHandCursor: true });
+    hit.on('pointerup', () => {
       if (!this.save) return;
       const purchase = purchaseUpgrade(this.save, upgrade.id);
       if (!purchase.success) {
@@ -241,12 +256,11 @@ export class ResultScene extends Phaser.Scene {
       }
       this.save = purchase.save;
       this.saveManager.save(this.save);
-      this.coinText?.setText(`YOUR COINS  💰 ${this.save.coins}`);
+      this.coinText?.setText(`💰 ${this.save.coins}`);
+      action.setText('OWNED ✓').setBackgroundColor('#78936d');
+      hit.disableInteractive();
       const benefit = upgrade.benefitLabel ? ` · ${upgrade.benefitLabel}` : '';
-      this.shopStatus?.setColor('#4f7048').setText(`${upgrade.icon} ${upgrade.title} added${benefit}`);
-      refresh();
+      this.shopStatus?.setColor('#506548').setText(`${upgrade.icon} ${upgrade.title} added${benefit}`);
     });
-
-    refresh();
   }
 }
