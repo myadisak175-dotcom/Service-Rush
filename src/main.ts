@@ -1,23 +1,28 @@
 import './styles.css';
+import { createGame } from './game/createGame';
 
 const bootScreen = document.querySelector<HTMLElement>('#boot-screen');
 const bootStatus = document.querySelector<HTMLElement>('#boot-status');
 
-async function start(): Promise<void> {
-  try {
-    // Keep the initial entry tiny so the loading shell can paint before Phaser is parsed.
-    const { createGame } = await import('./game/createGame');
-    createGame('game');
-
-    requestAnimationFrame(() => {
-      bootScreen?.remove();
-    });
-  } catch (error) {
-    console.error('Failed to start Service Rush', error);
-    if (bootStatus) {
-      bootStatus.textContent = 'Could not open the restaurant. Please reload.';
-    }
-  }
+function showBootError(message: string): void {
+  console.error(message);
+  if (bootStatus) bootStatus.textContent = message;
 }
 
-void start();
+try {
+  createGame('game');
+
+  // Remove the HTML shell only after Phaser has had a chance to create the canvas.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (document.querySelector('#game canvas')) {
+        bootScreen?.remove();
+      } else {
+        showBootError('Could not open the restaurant. Please reload.');
+      }
+    });
+  });
+} catch (error) {
+  console.error('Failed to start Service Rush', error);
+  showBootError('Could not open the restaurant. Please reload.');
+}
