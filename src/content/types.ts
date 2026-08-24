@@ -18,6 +18,8 @@ export interface DayConfig {
   waitingGroupLimit: number;
   kitchenCapacity: number;
   serviceWindowSeconds: number;
+  shiftDurationSeconds: number;
+  starThresholds: readonly [number, number, number];
   recipeIds: readonly string[];
 }
 
