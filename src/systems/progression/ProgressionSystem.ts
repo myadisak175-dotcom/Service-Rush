@@ -1,6 +1,6 @@
 import { campaignDays } from '../../content/campaignDays';
 import type { DayConfig } from '../../content/types';
-import { upgrades } from '../../content/upgrades';
+import { upgrades, type UpgradeDefinition } from '../../content/upgrades';
 import type { SaveData } from '../../core/save/SaveSchema';
 
 export interface ShiftResult {
@@ -22,7 +22,7 @@ export interface CompletionResult {
 export interface PurchaseResult {
   save: SaveData;
   success: boolean;
-  reason?: 'owned' | 'missing' | 'insufficient-coins';
+  reason?: 'owned' | 'missing' | 'locked' | 'insufficient-coins';
 }
 
 export function completeShift(
@@ -79,6 +79,9 @@ export function purchaseUpgrade(current: SaveData, upgradeId: string): PurchaseR
 
   const upgrade = upgrades.find((entry) => entry.id === upgradeId);
   if (!upgrade) return { save: current, success: false, reason: 'missing' };
+  if (upgrade.unlockDay > current.highestUnlockedDay) {
+    return { save: current, success: false, reason: 'locked' };
+  }
   if (current.coins < upgrade.cost) {
     return { save: current, success: false, reason: 'insufficient-coins' };
   }
@@ -93,6 +96,22 @@ export function purchaseUpgrade(current: SaveData, upgradeId: string): PurchaseR
   };
 }
 
+export function shopUpgrades(save: SaveData, limit = 3): readonly UpgradeDefinition[] {
+  const eligible = upgrades.filter((upgrade) => upgrade.unlockDay <= save.highestUnlockedDay);
+  const owned = new Set(save.unlockedUpgrades);
+
+  const unowned = eligible
+    .filter((upgrade) => !owned.has(upgrade.id))
+    .sort((a, b) => {
+      if (a.kind !== b.kind) return a.kind === 'service' ? -1 : 1;
+      if (a.unlockDay !== b.unlockDay) return b.unlockDay - a.unlockDay;
+      return a.cost - b.cost;
+    });
+  const alreadyOwned = eligible.filter((upgrade) => owned.has(upgrade.id));
+
+  return [...unowned, ...alreadyOwned].slice(0, Math.max(1, limit));
+}
+
 export function starsForScore(config: DayConfig, score: number): number {
   const [one, two, three] = config.starThresholds;
   if (score >= three) return 3;
@@ -103,6 +122,12 @@ export function starsForScore(config: DayConfig, score: number): number {
 
 export function totalStars(save: SaveData): number {
   return Object.values(save.starsByDay).reduce((sum, value) => sum + value, 0);
+}
+
+export function restaurantLevel(save: SaveData): number {
+  const criticBonus = save.achievements.includes('critic-approved') ? 3 : 0;
+  const progressPoints = totalStars(save) + save.unlockedUpgrades.length * 2 + criticBonus;
+  return 1 + Math.min(4, Math.floor(progressPoints / 6));
 }
 
 export function numberFromDayId(dayId: string): number {
