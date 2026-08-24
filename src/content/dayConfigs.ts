@@ -77,4 +77,16 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     starThresholds: [520, 960, 1400],
     recipeIds: ['ramen', 'tea', 'gyoza'],
   },
+  'day-07': {
+    id: 'day-07',
+    title: 'Day 7 · Food Critic',
+    features: ['seating', 'menu', 'take-order', 'memory', 'pos', 'kitchen', 'serving', 'payment', 'service-ratings', 'streak'],
+    tableCount: 4,
+    waitingGroupLimit: 3,
+    kitchenCapacity: 2,
+    serviceWindowSeconds: 15,
+    shiftDurationSeconds: 75,
+    starThresholds: [560, 1040, 1520],
+    recipeIds: ['ramen', 'tea', 'gyoza'],
+  },
 };

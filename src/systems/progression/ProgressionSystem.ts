@@ -1,3 +1,4 @@
+import { campaignDays } from '../../content/campaignDays';
 import type { DayConfig } from '../../content/types';
 import { upgrades } from '../../content/upgrades';
 import type { SaveData } from '../../core/save/SaveSchema';
@@ -10,6 +11,7 @@ export interface ShiftResult {
   previousBestStars: number;
   rewardCoins: number;
   nextDayUnlocked: number;
+  achievementUnlocked?: string;
 }
 
 export interface CompletionResult {
@@ -34,6 +36,12 @@ export function completeShift(
   const dayNumber = numberFromDayId(config.id);
   const rewardCoins = Math.max(45, 48 + dayNumber * 7 + Math.floor(score / 12) + shiftCoins);
   const nextDayUnlocked = Math.max(current.highestUnlockedDay, dayNumber + 1);
+  const campaign = campaignDays[config.id];
+  const achievementUnlocked = campaign?.achievementId
+    && stars >= (campaign.achievementStars ?? 1)
+    && !current.achievements.includes(campaign.achievementId)
+      ? campaign.achievementId
+      : undefined;
 
   const save: SaveData = {
     ...current,
@@ -44,6 +52,9 @@ export function completeShift(
       [config.id]: Math.max(previousBestStars, stars),
     },
     unlockedRecipes: [...new Set([...current.unlockedRecipes, ...config.recipeIds])],
+    achievements: achievementUnlocked
+      ? [...current.achievements, achievementUnlocked]
+      : current.achievements,
   };
 
   return {
@@ -56,6 +67,7 @@ export function completeShift(
       previousBestStars,
       rewardCoins,
       nextDayUnlocked,
+      achievementUnlocked,
     },
   };
 }
