@@ -3,7 +3,12 @@ import { dayConfigs } from '../../content/dayConfigs';
 import { upgrades } from '../../content/upgrades';
 import { SaveManager } from '../../core/save/SaveManager';
 import type { SaveData } from '../../core/save/SaveSchema';
-import { numberFromDayId, totalStars } from '../../systems/progression/ProgressionSystem';
+import {
+  numberFromDayId,
+  restaurantLevel,
+  totalStars,
+} from '../../systems/progression/ProgressionSystem';
+import { activeBenefitLabels } from '../../systems/progression/UpgradeEffects';
 
 export class HomeScene extends Phaser.Scene {
   private readonly saveManager = new SaveManager();
@@ -23,7 +28,7 @@ export class HomeScene extends Phaser.Scene {
       fontStyle: 'bold',
       color: '#fff5e8',
     });
-    this.add.text(34, 79, 'Your little restaurant · make it yours', {
+    this.add.text(34, 79, `Restaurant Lv.${restaurantLevel(save)} · make it yours`, {
       fontFamily: 'system-ui',
       fontSize: '18px',
       color: '#e8c8a2',
@@ -86,18 +91,38 @@ export class HomeScene extends Phaser.Scene {
         padding: { x: 8, y: 6 },
       }).setOrigin(0.5);
     }
+    if (save.unlockedUpgrades.includes('service-training')) {
+      this.add.text(278, 438, '🧑‍🍳', { fontFamily: 'system-ui', fontSize: '31px' }).setOrigin(0.5);
+    }
+    if (save.unlockedUpgrades.includes('prep-station')) {
+      this.add.text(444, 440, '🔪', { fontFamily: 'system-ui', fontSize: '30px' }).setOrigin(0.5);
+    }
+    if (save.unlockedUpgrades.includes('waiting-bench')) {
+      this.add.text(115, 438, '🛋️', { fontFamily: 'system-ui', fontSize: '34px' }).setOrigin(0.5);
+    }
 
     const owned = upgrades.filter((upgrade) => save.unlockedUpgrades.includes(upgrade.id));
     const criticBadge = save.achievements.includes('critic-approved') ? '   🏅 Critic Approved' : '';
     const ownershipText = owned.length
-      ? `Restaurant upgrades: ${owned.map((entry) => entry.icon).join(' ')}${criticBadge}`
-      : `Complete shifts to earn coins and decorate your restaurant.${criticBadge}`;
-    this.add.text(360, 493, ownershipText, {
+      ? `Lv.${restaurantLevel(save)} · ${owned.map((entry) => entry.icon).join(' ')}${criticBadge}`
+      : `Lv.${restaurantLevel(save)} · Complete shifts to grow your restaurant.${criticBadge}`;
+    this.add.text(360, 486, ownershipText, {
       fontFamily: 'system-ui',
-      fontSize: '16px',
+      fontSize: '15px',
       color: '#785f50',
       align: 'center',
     }).setOrigin(0.5);
+
+    const benefits = activeBenefitLabels(save.unlockedUpgrades);
+    if (benefits.length) {
+      this.add.text(360, 513, benefits.join('   ·   '), {
+        fontFamily: 'system-ui',
+        fontSize: '13px',
+        fontStyle: 'bold',
+        color: '#516748',
+        align: 'center',
+      }).setOrigin(0.5);
+    }
   }
 
   private drawDaySelect(save: SaveData): void {
