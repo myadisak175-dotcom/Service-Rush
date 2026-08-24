@@ -13,6 +13,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 1,
     kitchenCapacity: 1,
     serviceWindowSeconds: 28,
+    shiftDurationSeconds: 45,
+    starThresholds: [220, 420, 620],
     recipeIds: ['ramen', 'tea'],
   },
   'day-02': {
@@ -23,6 +25,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 1,
     kitchenCapacity: 1,
     serviceWindowSeconds: 26,
+    shiftDurationSeconds: 50,
+    starThresholds: [280, 520, 760],
     recipeIds: ['ramen', 'tea'],
   },
   'day-03': {
@@ -33,6 +37,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 2,
     kitchenCapacity: 1,
     serviceWindowSeconds: 24,
+    shiftDurationSeconds: 55,
+    starThresholds: [340, 620, 900],
     recipeIds: ['ramen', 'tea', 'gyoza'],
   },
   'day-04': {
@@ -43,6 +49,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 2,
     kitchenCapacity: 2,
     serviceWindowSeconds: 22,
+    shiftDurationSeconds: 60,
+    starThresholds: [400, 740, 1080],
     recipeIds: ['ramen', 'tea', 'gyoza'],
   },
   'day-05': {
@@ -53,6 +61,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 2,
     kitchenCapacity: 2,
     serviceWindowSeconds: 20,
+    shiftDurationSeconds: 65,
+    starThresholds: [460, 840, 1220],
     recipeIds: ['ramen', 'tea', 'gyoza'],
   },
   'day-06': {
@@ -63,6 +73,8 @@ export const dayConfigs: Readonly<Record<string, DayConfig>> = {
     waitingGroupLimit: 3,
     kitchenCapacity: 2,
     serviceWindowSeconds: 16,
+    shiftDurationSeconds: 70,
+    starThresholds: [520, 960, 1400],
     recipeIds: ['ramen', 'tea', 'gyoza'],
   },
 };
