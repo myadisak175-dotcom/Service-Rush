@@ -1,1 +1,0 @@
-export const REGULARS_EVENTS_MILESTONE = 1;
