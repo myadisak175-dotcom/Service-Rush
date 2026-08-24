@@ -60,7 +60,7 @@ export class ShiftOverlayScene extends Phaser.Scene {
       padding: { x: 14, y: 8 },
     }).setOrigin(0.5).setDepth(2000).setVisible(false);
 
-    this.surpriseText = this.add.text(360, 198, '', {
+    this.surpriseText = this.add.text(360, 340, '', {
       fontFamily: 'system-ui',
       fontSize: '15px',
       fontStyle: 'bold',
