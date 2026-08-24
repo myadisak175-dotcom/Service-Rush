@@ -1,0 +1,68 @@
+import type { DayConfig } from './types';
+
+/**
+ * Tutorial/progression is content, not hard-coded branching in RestaurantScene.
+ * More days can be added without changing the core gameplay systems.
+ */
+export const dayConfigs: Readonly<Record<string, DayConfig>> = {
+  'day-01': {
+    id: 'day-01',
+    title: 'Day 1 · Welcome In',
+    features: ['seating', 'menu'],
+    tableCount: 2,
+    waitingGroupLimit: 1,
+    kitchenCapacity: 1,
+    serviceWindowSeconds: 28,
+    recipeIds: ['ramen', 'tea'],
+  },
+  'day-02': {
+    id: 'day-02',
+    title: 'Day 2 · Ready to Order',
+    features: ['seating', 'menu', 'take-order', 'memory'],
+    tableCount: 2,
+    waitingGroupLimit: 1,
+    kitchenCapacity: 1,
+    serviceWindowSeconds: 26,
+    recipeIds: ['ramen', 'tea'],
+  },
+  'day-03': {
+    id: 'day-03',
+    title: 'Day 3 · Send the Ticket',
+    features: ['seating', 'menu', 'take-order', 'memory', 'pos', 'kitchen'],
+    tableCount: 2,
+    waitingGroupLimit: 2,
+    kitchenCapacity: 1,
+    serviceWindowSeconds: 24,
+    recipeIds: ['ramen', 'tea', 'gyoza'],
+  },
+  'day-04': {
+    id: 'day-04',
+    title: 'Day 4 · Service!',
+    features: ['seating', 'menu', 'take-order', 'memory', 'pos', 'kitchen', 'serving'],
+    tableCount: 3,
+    waitingGroupLimit: 2,
+    kitchenCapacity: 2,
+    serviceWindowSeconds: 22,
+    recipeIds: ['ramen', 'tea', 'gyoza'],
+  },
+  'day-05': {
+    id: 'day-05',
+    title: 'Day 5 · Full Service',
+    features: ['seating', 'menu', 'take-order', 'memory', 'pos', 'kitchen', 'serving', 'payment'],
+    tableCount: 3,
+    waitingGroupLimit: 2,
+    kitchenCapacity: 2,
+    serviceWindowSeconds: 20,
+    recipeIds: ['ramen', 'tea', 'gyoza'],
+  },
+  'day-06': {
+    id: 'day-06',
+    title: 'Day 6 · Dinner Rush',
+    features: ['seating', 'menu', 'take-order', 'memory', 'pos', 'kitchen', 'serving', 'payment', 'service-ratings', 'streak'],
+    tableCount: 4,
+    waitingGroupLimit: 3,
+    kitchenCapacity: 2,
+    serviceWindowSeconds: 16,
+    recipeIds: ['ramen', 'tea', 'gyoza'],
+  },
+};
