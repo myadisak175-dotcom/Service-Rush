@@ -16,6 +16,11 @@ interface ResultSceneData {
   dayId?: string;
   score?: number;
   shiftCoins?: number;
+  regularCompleted?: boolean;
+  regularName?: string;
+  regularIcon?: string;
+  regularBonusScore?: number;
+  regularBonusCoins?: number;
 }
 
 export class ResultScene extends Phaser.Scene {
@@ -95,6 +100,20 @@ export class ResultScene extends Phaser.Scene {
         backgroundColor: approved ? '#ddebd7' : '#eadfd4',
         padding: { x: 14, y: 9 },
       }).setOrigin(0.5);
+    } else if (data.regularCompleted && data.regularName) {
+      this.add.text(
+        360,
+        452,
+        `${data.regularIcon ?? '★'} ${data.regularName} returned · +${data.regularBonusScore ?? 0} score · +${data.regularBonusCoins ?? 0} coins`,
+        {
+          fontFamily: 'system-ui',
+          fontSize: '15px',
+          fontStyle: 'bold',
+          color: '#506548',
+          backgroundColor: '#dde8d6',
+          padding: { x: 14, y: 9 },
+        },
+      ).setOrigin(0.5);
     }
 
     this.coinText = this.add.text(360, 510, `YOUR COINS  💰 ${this.save.coins}`, {
