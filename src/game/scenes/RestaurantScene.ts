@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { dayConfigs } from '../../content/dayConfigs';
 import { recipes } from '../../content/recipes';
+import { SaveManager } from '../../core/save/SaveManager';
 import type { RestaurantSnapshot, TableView } from '../../domain/restaurant/RestaurantModels';
+import { activeBenefitLabels, applyOwnedUpgrades } from '../../systems/progression/UpgradeEffects';
 import { GameSession } from '../session/GameSession';
 
 interface RestaurantSceneData {
@@ -44,12 +46,15 @@ export class RestaurantScene extends Phaser.Scene {
   }
 
   create(data: RestaurantSceneData): void {
-    const config = dayConfigs[data.dayId ?? 'day-01'] ?? dayConfigs['day-01'];
+    const baseConfig = dayConfigs[data.dayId ?? 'day-01'] ?? dayConfigs['day-01'];
+    const save = new SaveManager().load();
+    const config = applyOwnedUpgrades(baseConfig, save.unlockedUpgrades);
     this.currentDayId = config.id;
     this.session = new GameSession(config);
     this.cameras.main.setBackgroundColor('#f5eadc');
 
     this.drawRestaurantShell();
+    this.drawActiveUpgrades(save.unlockedUpgrades);
     this.createTables(config.tableCount);
     this.createMenuDrag();
     this.createServiceCounter();
@@ -128,6 +133,19 @@ export class RestaurantScene extends Phaser.Scene {
       fontStyle: 'bold',
       color: '#49362c',
     });
+  }
+
+  private drawActiveUpgrades(ownedUpgradeIds: readonly string[]): void {
+    const benefits = activeBenefitLabels(ownedUpgradeIds);
+    if (!benefits.length) return;
+    this.add.text(360, 142, benefits.join('   ·   '), {
+      fontFamily: 'system-ui',
+      fontSize: '13px',
+      fontStyle: 'bold',
+      color: '#6f5849',
+      backgroundColor: '#f4dfc6',
+      padding: { x: 10, y: 4 },
+    }).setOrigin(0.5).setDepth(20);
   }
 
   private createTables(count: number): void {
