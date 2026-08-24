@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { DayIntroScene } from './scenes/DayIntroScene';
 import { HomeScene } from './scenes/HomeScene';
+import { JuiceOverlayScene } from './scenes/JuiceOverlayScene';
 import { RegularOverlayScene } from './scenes/RegularOverlayScene';
 import { RestaurantScene } from './scenes/RestaurantScene';
 import { ResultScene } from './scenes/ResultScene';
@@ -28,6 +29,7 @@ export function createGame(parent: string): Phaser.Game {
       RestaurantScene,
       ShiftOverlayScene,
       RegularOverlayScene,
+      JuiceOverlayScene,
       ResultScene,
     ],
   });
